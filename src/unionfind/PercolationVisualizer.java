@@ -38,13 +38,13 @@ public class PercolationVisualizer {
 
         // draw N-by-N grid
         int opened = 0;
-        for (int row = 0; row < N; row++) {
-            for (int col = 0; col < N; col++) {
-                if (perc.isFull(row, col)) {
+        for (int row = 1; row <= N; row++) {
+            for (int col = 1; col <= N; col++) {
+                if (perc.isFull(row-1, col-1)) {
                     StdDraw.setPenColor(StdDraw.BOOK_LIGHT_BLUE);
                     opened++;
                 }
-                else if (perc.isOpen(row, col)) {
+                else if (perc.isOpen(row-1, col-1)) {
                     StdDraw.setPenColor(StdDraw.WHITE);
                     opened++;
                 }
@@ -64,7 +64,7 @@ public class PercolationVisualizer {
     }
 
     public static void main(String[] args) {
-    	String file = "data/percolation/input3.txt";
+    	String file = "data/percolation/input10.txt";
 //        In in = new In(args[0]);      // input file
     	
         In in = new In(file);      // input file

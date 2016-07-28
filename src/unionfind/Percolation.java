@@ -7,18 +7,14 @@ import edu.princeton.cs.algs4.UF;
 public class Percolation {
 
 	private int N; // number of size of N*N board
-	private boolean[][] status; // the status of a site, true for open, false
-	                            // for blocked
-
+	private boolean[][] status; // the status of a site, true for open, false for blocked
 	private UF uf;
-
 	private int start;
 	private int end;
 
 	// create N-by-N grid, with all sites blocked
 	public Percolation(int N) {
-		if (N < 0)
-			throw new IllegalArgumentException();
+		if (N < 0) throw new IllegalArgumentException();
 		this.N = N;
 
 		// the site [i,j] correspond to i*j
@@ -27,9 +23,9 @@ public class Percolation {
 		start = 0;
 		end = N * N + 1;
 
-		status = new boolean[N + 1][N + 1];
-		for (int i = 1; i <= N; i++) {
-			for (int j = 1; j <= N; j++) {
+		status = new boolean[N][N];
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
 				status[i][j] = false;
 			}
 		}
@@ -45,34 +41,24 @@ public class Percolation {
 
 	public void open(int i, int j) {
 		StdOut.println("call open: i=" + i + ", j=" + j);
-		_open(i + 1, j + 1);
+		_open(i, j);
 	}
 
 	// open site (row i, column j) if it is not open already
 	private void _open(int i, int j) {
 		validate(i, j);
-
-		if (_isOpen(i, j))
-			return;
+		if (_isOpen(i, j)) return;
 
 		// union to its four neighbors if possible
-		if (i == 1)
-			uf.union(start, j);
+		if (i == 0) uf.union(start, fromArrIndex2UFIndex(i, j));
+		if (i == N - 1) {
+			uf.union(end, fromArrIndex2UFIndex(i, j));
+		}
 
-		if (i == N)
-			uf.union(end, N * N - N + j);
-
-		if (isValidCoordinate(i - 1, j) && _isOpen(i - 1, j))
-			uf.union(i * j, (i - 1) * j);
-
-		if (isValidCoordinate(i + 1, j) && _isOpen(i + 1, j))
-			uf.union(i * j, (i + 1) * j);
-
-		if (isValidCoordinate(i, j - 1) && _isOpen(i, j - 1))
-			uf.union(i * j, i * (j - 1));
-
-		if (isValidCoordinate(i, j + 1) && _isOpen(i, j + 1))
-			uf.union(i * j, i * (j + 1));
+		if (isValidCoordinate(i - 1, j) && _isOpen(i - 1, j)) uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex((i - 1), j));
+		if (isValidCoordinate(i + 1, j) && _isOpen(i + 1, j)) uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex((i + 1), j));
+		if (isValidCoordinate(i, j - 1) && _isOpen(i, j - 1)) uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex(i, (j - 1)));
+		if (isValidCoordinate(i, j + 1) && _isOpen(i, j + 1)) uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex(i, (j + 1)));
 
 		// set status
 		status[i][j] = true;
@@ -80,7 +66,7 @@ public class Percolation {
 
 	// is site (row i, column j) open?
 	public boolean isOpen(int i, int j) {
-		return _isOpen(i + 1, j + 1);
+		return _isOpen(i, j);
 	}
 
 	private boolean _isOpen(int i, int j) {
@@ -90,12 +76,13 @@ public class Percolation {
 
 	// is site (row i, column j) full?
 	public boolean isFull(int i, int j) {
-		return _isFull(i + 1, j + 1);
+		return _isFull(i, j);
 	}
 
 	private boolean _isFull(int i, int j) {
 		validate(i, j);
-		return uf.connected(start, i * j);
+		// int a = fromArrIndex2UFIndex(i, j);
+		return uf.connected(start, fromArrIndex2UFIndex(i, j));
 	}
 
 	// does the system percolate?
@@ -103,9 +90,15 @@ public class Percolation {
 		return uf.connected(start, end);
 	}
 
+	// arr id is start from 0 to N-1, union find start from 1 to N*N
+	// case: [0,2] = 0 * 3 + 2 = 2, given N=3
+	private int fromArrIndex2UFIndex(int i, int j) {
+		return (i * N) + (j + 1);
+	}
+
 	// validate that p is a valid index
 	private void validate(int p) {
-		if (p < 1 || p > N) {
+		if (p < 0 || p >= N) {
 			StdOut.println("error throw in validate() with p=" + p);
 			throw new IndexOutOfBoundsException("index " + p + " is not between 0 and " + (N - 1));
 		}
@@ -119,7 +112,7 @@ public class Percolation {
 
 	// is valid coordinate
 	private boolean isValidCoordinate(int i, int j) {
-		if (i >= 1 && i <= N && j >= 1 && j <= N) {
+		if (i >= 0 && i < N && j >= 0 && j < N) {
 			return true;
 		} else {
 			return false;
@@ -133,8 +126,8 @@ public class Percolation {
 
 		try {
 			StdOut.println("isopen: " + pc.isOpen(1, 1));
-			StdOut.println("isopen: " + pc.isOpen(N, N));
-			// StdOut.println("isopen: " + pc.isOpen(0, 1));
+			// StdOut.println("isopen: " + pc.isOpen(N, N));
+			StdOut.println("isopen: " + pc.isOpen(0, 1));
 			// StdOut.println("isopen: (" + pc.isOpen(1, 0));
 
 			StdOut.println("is full: " + pc.isFull(1, 1));
@@ -144,8 +137,8 @@ public class Percolation {
 
 			int count = 0;
 			while (!pc.percolates()) {
-				int i = StdRandom.uniform(N) + 1;
-				int j = StdRandom.uniform(N) + 1;
+				int i = StdRandom.uniform(N);
+				int j = StdRandom.uniform(N);
 				StdOut.println("random choose: (" + i + ", " + j + ")");
 				if (!pc.isOpen(i, j)) {
 					pc.open(i, j);
