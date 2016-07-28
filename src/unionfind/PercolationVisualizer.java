@@ -64,7 +64,7 @@ public class PercolationVisualizer {
     }
 
     public static void main(String[] args) {
-    	String file = "data/percolation/input10.txt";
+    	String file = "data/percolation/input20.txt";
 //        In in = new In(args[0]);      // input file
     	
         In in = new In(file);      // input file

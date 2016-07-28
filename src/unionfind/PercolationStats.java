@@ -69,7 +69,7 @@ public class PercolationStats {
 			}
 
 			fa = (double) count / (N * N);
-			StdOut.println("open site size " + count + ", fraction = " + fa);
+//			StdOut.println("open site size " + count + ", fraction = " + fa);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -81,8 +81,8 @@ public class PercolationStats {
 	// test client (described below)
 	public static void main(String[] args) {
 
-		int N = 200;
-		int T = 100;
+		int N = 2;
+		int T = 1000;
 		PercolationStats ps = new PercolationStats(N, T);
 
 	}

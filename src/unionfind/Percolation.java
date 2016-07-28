@@ -9,6 +9,7 @@ public class Percolation {
 	private int N; // number of size of N*N board
 	private boolean[][] status; // the status of a site, true for open, false for blocked
 	private UF uf;
+	private UF ufHeadOnly;
 	private int start;
 	private int end;
 
@@ -20,6 +21,7 @@ public class Percolation {
 		// the site [i,j] correspond to i*j
 		// 0 for start, N*N+2 for end
 		uf = new UF(N * N + 2);
+		ufHeadOnly = new UF(N * N + 2);
 		start = 0;
 		end = N * N + 1;
 
@@ -40,7 +42,7 @@ public class Percolation {
 	}
 
 	public void open(int i, int j) {
-		StdOut.println("call open: i=" + i + ", j=" + j);
+//		StdOut.println("call open: i=" + i + ", j=" + j);
 		_open(i, j);
 	}
 
@@ -50,15 +52,28 @@ public class Percolation {
 		if (_isOpen(i, j)) return;
 
 		// union to its four neighbors if possible
-		if (i == 0) uf.union(start, fromArrIndex2UFIndex(i, j));
-		if (i == N - 1) {
-			uf.union(end, fromArrIndex2UFIndex(i, j));
+		if (i == 0){
+			uf.union(start, fromArrIndex2UFIndex(i, j));
+			ufHeadOnly.union(start, fromArrIndex2UFIndex(i, j));
 		}
+		if (i == N - 1) uf.union(end, fromArrIndex2UFIndex(i, j));
 
-		if (isValidCoordinate(i - 1, j) && _isOpen(i - 1, j)) uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex((i - 1), j));
-		if (isValidCoordinate(i + 1, j) && _isOpen(i + 1, j)) uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex((i + 1), j));
-		if (isValidCoordinate(i, j - 1) && _isOpen(i, j - 1)) uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex(i, (j - 1)));
-		if (isValidCoordinate(i, j + 1) && _isOpen(i, j + 1)) uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex(i, (j + 1)));
+		if (isValidCoordinate(i - 1, j) && _isOpen(i - 1, j)) {
+			uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex((i - 1), j));
+			ufHeadOnly.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex((i - 1), j));
+		}
+		if (isValidCoordinate(i + 1, j) && _isOpen(i + 1, j)) {
+			uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex((i + 1), j));
+			ufHeadOnly.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex((i + 1), j));
+		}
+		if (isValidCoordinate(i, j - 1) && _isOpen(i, j - 1)) {
+			uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex(i, (j - 1)));
+			ufHeadOnly.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex(i, (j - 1)));
+		}
+		if (isValidCoordinate(i, j + 1) && _isOpen(i, j + 1)) {
+			uf.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex(i, (j + 1)));
+			ufHeadOnly.union(fromArrIndex2UFIndex(i, j), fromArrIndex2UFIndex(i, (j + 1)));
+		}
 
 		// set status
 		status[i][j] = true;
@@ -82,7 +97,7 @@ public class Percolation {
 	private boolean _isFull(int i, int j) {
 		validate(i, j);
 		// int a = fromArrIndex2UFIndex(i, j);
-		return uf.connected(start, fromArrIndex2UFIndex(i, j));
+		return uf.connected(start, fromArrIndex2UFIndex(i, j)) && ufHeadOnly.connected(start, fromArrIndex2UFIndex(i, j));
 	}
 
 	// does the system percolate?
